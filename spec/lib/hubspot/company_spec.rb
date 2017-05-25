@@ -116,7 +116,43 @@ describe Hubspot::Contact do
       cassette 'find_all_companies'
 
       it 'must get the companies list' do
-        companies = Hubspot::Company.all
+        result = Hubspot::Company.all
+        companies = result['companies']
+
+        expect(companies.size).to eql 100 # default page size
+
+        first = companies.first
+        last = companies.last
+
+        expect(first).to be_a Hubspot::Company
+        expect(first.vid).to eql 115200636
+        expect(first['name']).to eql 'Example Company'
+
+        expect(last).to be_a Hubspot::Company
+        expect(last.vid).to eql 137460646
+        expect(last['name']).to eql 'Another Company'
+      end
+
+      it 'must filter only 2 copmanies' do
+        result = Hubspot::Company.all(limit: 2)
+        companies = result['companies']
+        expect(companies.size).to eql 2
+      end
+
+      it 'must offset the companies' do
+        result = Hubspot::Company.all(offset: 2)
+        expect(result['offset']).to eql 2
+        expect(result['has-more']).to eql true
+      end
+    end
+  end
+
+  describe '.recent' do
+    context 'recently created companies' do
+      cassette 'find_recently_created_companies'
+
+      it 'must get the companies list' do
+        companies = Hubspot::Company.recent
 
         expect(companies.size).to eql 20 # default page size
 
@@ -132,9 +168,9 @@ describe Hubspot::Contact do
         expect(last['name']).to eql 'Xge5rbdt2zm'
       end
 
-      it 'must filter only 2 companies' do
-        copmanies = Hubspot::Company.all(count: 2)
-        expect(copmanies.size).to eql 2
+      it 'must filter only 2 copmanies' do
+        companies = Hubspot::Company.recent(count: 2)
+        expect(companies.size).to eql 2
       end
 
       context 'all_with_offset' do
@@ -162,11 +198,11 @@ describe Hubspot::Contact do
       end
     end
 
-    context 'recent companies' do
-      cassette 'find_all_recent_companies'
+    context 'recently updated companies' do
+      cassette 'find_recently_updated_companies'
 
       it 'must get the companies list' do
-        companies = Hubspot::Company.all(recently_updated: true)
+        companies = Hubspot::Company.recent(recently_updated: true)
         expect(companies.size).to eql 20
 
         first, last = companies.first, companies.last
@@ -262,7 +298,8 @@ describe Hubspot::Contact do
     cassette "add_contact_to_company_instance"
     let(:company){ Hubspot::Company.create!("company_#{Time.now.to_i}@example.com") }
     let(:contact){ Hubspot::Contact.create!("contact_#{Time.now.to_i}@example.com") }
-    subject { Hubspot::Company.find_by_id(company.vid) }
+
+    subject { Hubspot::Company.recent(recent: true).last }
 
     context "with Hubspot::Contact instance" do
       before { company.add_contact contact }
