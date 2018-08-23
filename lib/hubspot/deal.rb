@@ -58,12 +58,13 @@ module Hubspot
       def all(opts = {})
         path = ALL_DEALS_PATH
 
+        opts[:includeAssociations] = true # Needed for initialize to work
         response = Hubspot::Connection.get_json(path, opts)
 
         result = {}
         result['deals'] = response['deals'].map { |d| new(d) }
         result['offset'] = response['offset']
-        result['has-more'] = response['has-more']
+        result['hasMore'] = response['hasMore']
         return result
       end
 
