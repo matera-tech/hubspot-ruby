@@ -58,7 +58,12 @@ module Hubspot
         end
 
         response = Hubspot::Connection.get_json(path, opts)
-        response['results'].map { |c| new(c) }
+
+        result = {}
+        result['companies'] = response['results'].map { |c| new(c) }
+        result['offset'] = response['offset']
+        result['has-more'] = response['hasMore']
+        result
       end
 
       # Finds a list of companies by domain
