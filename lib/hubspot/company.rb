@@ -60,7 +60,12 @@ module Hubspot
         end
 
         response = Hubspot::Connection.get_json(path, opts)
-        response['results'].map { |c| new(c) }
+
+        {
+          'companies' => response['results'].map { |c| new(c) },
+          'offset' => response['offset'],
+          'has-more' => response['hasMore']
+        }
       end
 
       # Find all companies by created date (descending)
