@@ -147,7 +147,9 @@ module Hubspot
             type: 'NOTE'
           },
           associations: {
-            contactIds: [contact_id]
+            contactIds: [contact_id],
+            dealIds: [deal_id],
+            ownerIds: [owner_id]
           },
           metadata: {
             body: note_body
