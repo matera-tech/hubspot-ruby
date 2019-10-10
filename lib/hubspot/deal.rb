@@ -16,6 +16,7 @@ module Hubspot
     ASSOCIATED_DEAL_PATH = "/deals/v1/deal/associated/:objectType/:objectId"
 
     attr_reader :properties
+    attr_reader :properties_unformatted
     attr_reader :portal_id
     attr_reader :deal_id
     attr_reader :company_ids
@@ -27,6 +28,7 @@ module Hubspot
       @company_ids = response_hash["associations"]["associatedCompanyIds"]
       @vids = response_hash["associations"]["associatedVids"]
       @properties = Hubspot::Utils.properties_to_hash(response_hash["properties"])
+      @properties_unformatted = response_hash["properties"]
     end
 
     class << self
@@ -49,9 +51,9 @@ module Hubspot
          Hubspot::Connection.put_json(ASSOCIATE_DEAL_PATH, params: { deal_id: deal_id, OBJECTTYPE: objecttype, objectId: object_ids}, body: {})
        end
 
+      def find(deal_id, opts = {})
+        response = Hubspot::Connection.get_json(DEAL_PATH, { deal_id: deal_id, includePropertyVersions: opts[:include_property_versions] })
 
-      def find(deal_id)
-        response = Hubspot::Connection.get_json(DEAL_PATH, { deal_id: deal_id })
         new(response)
       end
 
