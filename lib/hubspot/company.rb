@@ -135,11 +135,11 @@ module Hubspot
       # {http://developers.hubspot.com/docs/methods/companies/get_company}
       # @param id [Integer] company id to search by
       # @return [Hubspot::Company] Company record
-      def find_by_id(id)
+      def find_by_id(id, opts = {})
         path = GET_COMPANY_BY_ID_PATH
         params = { company_id: id }
         raise Hubspot::InvalidParams, 'expecting Integer parameter' unless id.try(:is_a?, Integer)
-        response = Hubspot::Connection.get_json(path, params)
+        response = Hubspot::Connection.get_json(path, params.merge(includePropertyVersions: opts[:include_property_versions]))
         new(response)
       end
 
@@ -197,11 +197,13 @@ module Hubspot
 
     attr_reader :properties
     attr_reader :vid, :name
+    attr_reader :properties_unformatted
 
     def initialize(response_hash)
       @properties = Hubspot::Utils.properties_to_hash(response_hash["properties"])
       @vid = response_hash["companyId"]
       @name = @properties.try(:[], "name")
+      @properties_unformatted = response_hash["properties"]
     end
 
     def [](property)
