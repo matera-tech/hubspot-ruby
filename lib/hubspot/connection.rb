@@ -16,7 +16,7 @@ module Hubspot
         url = generate_url(path, opts[:params])
         response = post(url, body: opts[:body].to_json, headers: { 'Content-Type' => 'application/json' }, format: :json)
         log_request_and_response url, response, opts[:body]
-        raise(Hubspot::RequestError.new(response)) unless response.success?
+        handle_error(response) unless response.success?
 
         no_parse ? response : response.parsed_response
       end
@@ -39,7 +39,7 @@ module Hubspot
         url = generate_url(path, opts)
         response = delete(url, format: :json)
         log_request_and_response url, response, opts[:body]
-        raise(Hubspot::RequestError.new(response)) unless response.success?
+        handle_error(response) unless response.success?
         response
       end
 
@@ -48,6 +48,14 @@ module Hubspot
       def handle_response(response)
         if response.success?
           response.parsed_response
+        else
+          handle_error(response)
+        end
+      end
+
+      def handle_error(response)
+        if response[:errorType] == "RATE_LIMIT"
+          raise(Hubspot::RateError.new(response))
         else
           raise(Hubspot::RequestError.new(response))
         end

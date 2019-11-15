@@ -9,6 +9,7 @@ module Hubspot
       return me
     end
   end
+  class RateError < RequestError; end
 
   class ConfigurationError < StandardError; end
   class MissingInterpolation < StandardError; end
