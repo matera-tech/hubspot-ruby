@@ -21,6 +21,7 @@ module Hubspot
     attr_reader :deal_id
     attr_reader :company_ids
     attr_reader :vids
+    attr_reader :is_deleted
 
     def initialize(response_hash)
       @portal_id = response_hash["portalId"]
@@ -29,6 +30,7 @@ module Hubspot
       @vids = response_hash["associations"]["associatedVids"]
       @properties = Hubspot::Utils.properties_to_hash(response_hash["properties"])
       @properties_unformatted = response_hash["properties"]
+      @is_deleted = response_hash["isDeleted"]
     end
 
     class << self

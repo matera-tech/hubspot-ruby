@@ -198,12 +198,14 @@ module Hubspot
     attr_reader :properties
     attr_reader :vid, :name
     attr_reader :properties_unformatted
+    attr_reader :is_deleted
 
     def initialize(response_hash)
       @properties = Hubspot::Utils.properties_to_hash(response_hash["properties"])
       @vid = response_hash["companyId"]
       @name = @properties.try(:[], "name")
       @properties_unformatted = response_hash["properties"]
+      @is_deleted = response_hash["isDeleted"]
     end
 
     def [](property)
