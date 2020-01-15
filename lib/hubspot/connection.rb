@@ -54,7 +54,7 @@ module Hubspot
       end
 
       def handle_error(response)
-        if response[:errorType] == "RATE_LIMIT"
+        if response["errorType"] == "RATE_LIMIT"
           raise(Hubspot::RateError.new(response))
         else
           raise(Hubspot::RequestError.new(response))
