@@ -127,6 +127,21 @@ module Hubspot
         end
       end
 
+      def find_by_email!(emails)
+        batch_mode, path, params = case emails
+        when String then [false, GET_CONTACT_BY_EMAIL_PATH, { contact_email: emails }]
+        when Array then [true, GET_CONTACTS_BY_EMAIL_PATH, { batch_email: emails }]
+        else raise Hubspot::InvalidParams, 'expecting String or Array of Strings parameter'
+        end
+
+        response = Hubspot::Connection.get_json(path, params)
+        if batch_mode
+          response.map{|_, contact| new(contact)}
+        else
+          new(response)
+        end
+      end
+
       # NOTE: problem with batch api endpoint
       # {https://developers.hubspot.com/docs/methods/contacts/get_contact_by_utk}
       # {https://developers.hubspot.com/docs/methods/contacts/get_batch_by_utk}
