@@ -34,10 +34,9 @@ module Hubspot
     end
 
     class << self
-      def create!(portal_id, company_ids, vids, params={})
+      def create!(params={})
         #TODO: clean following hash, Hubspot::Utils should do the trick
-        associations_hash = {"portalId" => portal_id, "associations" => { "associatedCompanyIds" => company_ids, "associatedVids" => vids}}
-        post_data = associations_hash.merge({ properties: Hubspot::Utils.hash_to_properties(params, key_name: "name") })
+        post_data = Hubspot::Utils.hash_to_properties(params, key_name: "name")
 
         response = Hubspot::Connection.post_json(CREATE_DEAL_PATH, params: {}, body: post_data )
         new(response)
@@ -136,7 +135,7 @@ module Hubspot
     # @param params [Hash] hash of properties to update
     # @return [Hubspot::Deal] self
     def update!(params)
-      query = {"properties" => Hubspot::Utils.hash_to_properties(params.stringify_keys!, key_name: 'name')}
+      query = Hubspot::Utils.hash_to_properties(params.stringify_keys!, key_name: 'name')
       Hubspot::Connection.put_json(UPDATE_DEAL_PATH, params: { deal_id: deal_id }, body: query)
       @properties.merge!(params)
       self
