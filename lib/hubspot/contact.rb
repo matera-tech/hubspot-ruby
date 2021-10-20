@@ -93,14 +93,14 @@ module Hubspot
       # NOTE: problem with batch api endpoint
       # {https://developers.hubspot.com/docs/methods/contacts/get_contact}
       # {https://developers.hubspot.com/docs/methods/contacts/get_batch_by_vid}
-      def find_by_id(vids)
+      def find_by_id(vids, opts = {})
         batch_mode, path, params = case vids
         when Integer then [false, GET_CONTACT_BY_ID_PATH, { contact_id: vids }]
         when Array then [true, CONTACT_BATCH_PATH, { batch_vid: vids }]
         else raise Hubspot::InvalidParams, 'expecting Integer or Array of Integers parameter'
         end
 
-        response = Hubspot::Connection.get_json(path, params)
+        response = Hubspot::Connection.get_json(path, params.merge(includePropertyVersions: opts[:include_property_versions]))
         raise Hubspot::ApiError if batch_mode
         new(response)
       end
@@ -182,6 +182,7 @@ module Hubspot
 
     attr_reader :properties, :vid, :is_new
     attr_reader :is_contact, :list_memberships
+    attr_reader :properties_unformatted
 
     def initialize(response_hash)
       props = response_hash['properties']
@@ -189,6 +190,7 @@ module Hubspot
       @is_contact = response_hash["is-contact"]
       @list_memberships = response_hash["list-memberships"] || []
       @vid = response_hash['vid']
+      @properties_unformatted = response_hash["properties"]
     end
 
     def [](property)
