@@ -35,20 +35,6 @@ module Hubspot
         handle_response(response)
       end
 
-      def patch_json(path, options)
-        url = generate_url(path, options[:params])
-
-        response = patch(
-          url,
-          body: options[:body].to_json,
-          headers: { "Content-Type" => "application/json" },
-          format: :json
-        )
-
-        log_request_and_response(url, response, options[:body])
-        handle_response(response)
-      end
-
       def delete_json(path, opts)
         url = generate_url(path, opts)
         response = delete(url, format: :json)
