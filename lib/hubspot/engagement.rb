@@ -126,7 +126,7 @@ module Hubspot
         metadata: params[:metadata]         || metadata
       }
 
-      Hubspot::Connection.patch_json(ENGAGEMENT_PATH, params: { engagement_id: id }, body: data)
+      Hubspot::Connection.put_json(ENGAGEMENT_PATH, params: { engagement_id: id }, body: data)
       self
     end
   end
