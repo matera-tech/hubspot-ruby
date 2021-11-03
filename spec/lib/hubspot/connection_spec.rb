@@ -97,6 +97,79 @@ describe Hubspot::Connection do
     end
   end
 
+  describe ".patch_json" do
+    let(:metadata) do
+      {
+        metadata:
+          {
+            title: "Démo groupée",
+            body: "https://fake_link.com",
+          }
+      }
+    end
+    let(:response_metadata) do
+      {
+        "metadata" =>
+          {
+            "title" => "Démo groupée",
+            "body" => "https://fake_link.com",
+          }
+      }
+    end
+
+    it "issues a PATCH request and returns the parsed body" do
+      path = "/some/path"
+      update_options = { params: {}, body: metadata }
+      
+
+      stub_request(:patch, "https://api.hubapi.com/some/path?hapikey=fake").
+        to_return(status: 200, body: JSON.generate(metadata))
+
+      response = Hubspot::Connection.patch_json(path, update_options)
+
+      assert_requested(
+        :patch,
+        "https://api.hubapi.com/some/path?hapikey=fake",
+         {
+           body: metadata.to_json,
+           headers: { "Content-Type" => "application/json" },
+         }
+      )
+
+      expect(response).to eq(response_metadata)
+    end
+
+    it "logs information about the request and response" do
+      path = "/some/path"
+      update_options = { params: {}, body: metadata }
+
+      logger = stub_logger
+
+      stub_request(:patch, "https://api.hubapi.com/some/path?hapikey=fake").
+        to_return(status: 200, body: JSON.generate(metadata))
+
+      Hubspot::Connection.patch_json(path, update_options)
+
+      expect(logger).to have_received(:info).with(<<~MSG)
+        Hubspot: https://api.hubapi.com/some/path?hapikey=fake.
+        Body: #{metadata}.
+        Response: 200 #{metadata.to_json}
+      MSG
+    end
+
+    it "raises when the request fails" do
+      path = "/some/path"
+      update_options = { params: {}, body: {} }
+
+      stub_request(:patch, "https://api.hubapi.com/some/path?hapikey=fake").
+        to_return(status: 401)
+
+      expect {
+        Hubspot::Connection.patch_json(path, update_options)
+      }.to raise_error(Hubspot::RequestError)
+    end
+  end
+
   context 'private methods' do
     describe ".generate_url" do
       let(:path){ "/test/:email/profile" }
