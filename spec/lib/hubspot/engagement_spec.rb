@@ -131,6 +131,43 @@ describe Hubspot::Engagement do
         expect(Hubspot::Engagement.find(engagement.id)).to be_nil
       end
     end
+
+    describe ".recently_updated" do
+      cassette "find_all_recently_updated_engagements"
+
+      it 'returns the recently updated engagements list' do
+        engagements = Hubspot::Engagement.recently_updated
+
+        expect(engagements['engagements'].size).to eql 20 # default items size
+
+        first = engagements['engagements'].first
+        last = engagements['engagements'].last
+
+        expect(first).to be_a Hubspot::Engagement
+        expect(first.engagement['id']).to eql 653183444
+        expect(last).to be_a Hubspot::Engagement
+        expect(last.engagement['id']).to eql 704169669
+      end
+
+      it 'returns only 2 engagements' do
+        engagements = Hubspot::Engagement.recently_updated(count: 2)
+        expect(engagements['engagements'].size).to eql 2
+      end
+
+      it 'offsets the engagements' do
+        single_list = Hubspot::Engagement.recently_updated(count: 5)
+        expect(single_list['engagements'].size).to eql 5
+        second = Hubspot::Engagement.recently_updated(count: 1, offset: single_list['offset'])['engagements'].first
+        expect(second.engagement['id']).to eql 695973612
+      end
+
+      it 'returns only 10 the engagements modified 1 day ago' do
+        response = Hubspot::Engagement.recently_updated(count: 10, since: 1646926330)
+        expect(response['engagements'].size).to eql 10
+        second = Hubspot::Engagement.recently_updated(count: 1, since: 1646926330)['engagements'].first
+        expect(second.engagement['lastUpdated']).to be > 1.day.ago.to_i
+      end
+    end
   end
 
   describe 'EngagementCall' do
