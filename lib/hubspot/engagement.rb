@@ -8,6 +8,7 @@ module Hubspot
   #
   class Engagement
     ALL_ENGAGEMENTS_PATH = '/engagements/v1/engagements/paged'
+    GET_ALL_RECENTLY_MODIFIED_ENGAGEMENTS_PATH = "/engagements/v1/engagements/recent/modified"
     CREATE_ENGAGMEMENT_PATH = '/engagements/v1/engagements'
     ENGAGEMENT_PATH = '/engagements/v1/engagements/:engagement_id'
     ASSOCIATE_ENGAGEMENT_PATH = '/engagements/v1/engagements/:engagement_id/associations/:object_type/:object_vid'
@@ -48,15 +49,11 @@ module Hubspot
       end
 
       def all(opts = {})
-        path = ALL_ENGAGEMENTS_PATH
+        find_engagements(ALL_ENGAGEMENTS_PATH, opts)
+      end
 
-        response = Hubspot::Connection.get_json(path, opts)
-
-        result = {}
-        result['engagements'] = response['results'].map { |d| new(d) }
-        result['offset'] = response['offset']
-        result['hasMore'] = response['hasMore']
-        return result
+      def recently_updated(opts = {})
+        find_engagements(GET_ALL_RECENTLY_MODIFIED_ENGAGEMENTS_PATH, opts)
       end
 
       def find_by_company(company_id)
@@ -95,6 +92,18 @@ module Hubspot
                                        object_type: object_type,
                                        object_vid: object_vid
                                      })
+      end
+
+      private
+
+      def find_engagements(path, opts)
+        response = Hubspot::Connection.get_json(path, opts)
+  
+        result = {}
+        result['engagements'] = response['results'].map { |d| new(d) }
+        result['offset'] = response['offset']
+        result['hasMore'] = response['hasMore']
+        result
       end
     end
 
