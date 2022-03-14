@@ -161,7 +161,7 @@ describe Hubspot::Engagement do
         expect(second.engagement['id']).to eql 695973612
       end
 
-      it 'returns only 10 the engagements modified 1 day ago' do
+      it 'returns only the 10 engagements modified 1 day ago' do
         response = Hubspot::Engagement.recently_updated(count: 10, since: 1646926330)
         expect(response['engagements'].size).to eql 10
         second = Hubspot::Engagement.recently_updated(count: 1, since: 1646926330)['engagements'].first
