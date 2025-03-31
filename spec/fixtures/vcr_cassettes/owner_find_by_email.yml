@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.hubapi.com/owners/v2/owners?email=aaron@unbounce.com&hapikey=demo&includeInactive=false
+    uri: https://api.hubapi.com/crm/v3/owners?email=aaron@unbounce.com&hapikey=demo&includeInactive=false
     body:
       encoding: US-ASCII
       string: ''
@@ -24,7 +24,7 @@ http_interactions:
       - keep-alive
     body:
       encoding: UTF-8
-      string: '[{"portalId":62515,"ownerId":72,"type":"PERSON","firstName":"Aaron","lastName":"Oman","email":"aaron@unbounce.com","createdAt":1405605859739,"updatedAt":1446764930941,"remoteList":[{"id":29619,"portalId":62515,"ownerId":72,"remoteId":"254556","remoteType":"HUBSPOT","active":true}]}]'
+      string: '{"results": [{"id":"72","email":"aaron@unbounce.com","type":"PERSON","firstName":"Aaron","lastName":"Oman","userId":10708668,"userIdIncludingInactive":10708668,"createdAt":"2020-05-05T09:16:12.462Z","updatedAt":"2023-05-24T07:37:20.644Z","archived":false,"teams":[{"id":"1507808","name":"Tech","primary":true}]}]}'
     http_version: 
   recorded_at: Wed, 20 Jan 2016 20:14:06 GMT
 recorded_with: VCR 2.4.0

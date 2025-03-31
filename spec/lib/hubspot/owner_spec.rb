@@ -1,7 +1,7 @@
 describe Hubspot::Owner do
   let(:example_owners) do
     VCR.use_cassette('owner_example') do
-      HTTParty.get('https://api.hubapi.com/owners/v2/owners?hapikey=demo&portalId=62515').parsed_response
+      HTTParty.get('https://api.hubapi.com/crm/v3/owners?hapikey=demo&includeInactive=false').parsed_response
     end
   end
 
@@ -11,17 +11,17 @@ describe Hubspot::Owner do
     cassette 'owner_all'
 
     it 'should find all owners' do
-      owners = Hubspot::Owner.all
+      owners = Hubspot::Owner.all[:owners]
 
       expect(owners.blank?).to be false
-      compare_owners(owners, example_owners)
+      compare_owners(owners, example_owners['results'])
     end
   end
 
   describe '.find_by_email' do
     cassette 'owner_find_by_email'
 
-    let(:sample) { example_owners.first }
+    let(:sample) { example_owners['results'].first }
     let(:email) { sample['email'] }
 
     it 'should find a user via their email address' do
@@ -35,7 +35,7 @@ describe Hubspot::Owner do
   describe '.find_by_emails' do
     cassette 'owner_find_by_emails'
 
-    let(:samples) { example_owners[0..[example_owners.count, 3].min] }
+    let(:samples) { example_owners['results'][0..[example_owners.count, 3].min] }
     let(:emails) { samples.map { |s| s['email'] } }
 
     it 'should find users via their email address' do
