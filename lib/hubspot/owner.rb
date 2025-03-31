@@ -8,17 +8,17 @@ module Hubspot
   # TODO: Update an Owner
   # TODO: Delete an Owner
   class Owner
-    GET_OWNERS_PATH   = '/owners/v2/owners' # GET
-    CREATE_OWNER_PATH = '/owners/v2/owners' # POST
-    UPDATE_OWNER_PATH = '/owners/v2/owners/:owner_id' # PUT
-    DELETE_OWNER_PATH = '/owners/v2/owners/:owner_id' # DELETE
+    GET_OWNERS_PATH   = '/crm/v3/owners' # GET
+    CREATE_OWNER_PATH = '/crm/v3/owners' # POST
+    UPDATE_OWNER_PATH = '/crm/v3/owners/:owner_id' # PUT
+    DELETE_OWNER_PATH = '/crm/v3/owners/:owner_id' # DELETE
 
 
     attr_reader :properties, :owner_id, :email
 
     def initialize(property_hash)
       @properties = property_hash
-      @owner_id   = @properties['ownerId']
+      @owner_id   = @properties['id']
       @email      = @properties['email']
     end
 
@@ -27,17 +27,21 @@ module Hubspot
     end
 
     class << self
-      def all(include_inactive=false)
+      def all(include_inactive=false, after=nil)
         path     = GET_OWNERS_PATH
-        params   = { includeInactive: include_inactive }
+        params   = { includeInactive: include_inactive, after: after }.compact
         response = Hubspot::Connection.get_json(path, params)
-        response.map { |r| new(r) }
+        owners = response['results'].map { |r| new(r) }
+
+        after = response.dig('paging', 'next', 'after')
+
+        {owners: owners, after: after}
       end
 
       def find_by_email(email, include_inactive=false)
         path     = GET_OWNERS_PATH
         params   = { email: email, includeInactive: include_inactive }
-        response = Hubspot::Connection.get_json(path, params)
+        response = Hubspot::Connection.get_json(path, params)['results']
         response.blank? ? nil : new(response.first)
       end
 
