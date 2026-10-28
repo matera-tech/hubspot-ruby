@@ -89,7 +89,7 @@ module Hubspot
         else
           Hubspot::Config.ensure! :hapikey
         end
-        path = path.clone
+        path = path.dup
         params = params.clone
         base_url = options[:base_url] || Hubspot::Config.base_url
         params["hapikey"] = Hubspot::Config.hapikey unless options[:hapikey] == false
